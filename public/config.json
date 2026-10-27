@@ -1,0 +1,10 @@
+{
+  "appName": "AR. Admin",
+  "subtitle": "Messages & appointments",
+  "accent": "#d4af37",
+  "timezone": "Asia/Kolkata",
+  "locale": "en-IN",
+  "defaultCountryCode": "91",
+  "refreshSeconds": 60,
+  "statuses": ["new", "read", "done"]
+}
