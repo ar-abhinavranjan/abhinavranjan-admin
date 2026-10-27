@@ -56,6 +56,21 @@ you -> admin.abhinavranjan.qzz.io -> /api/admin-data (checks signed session cook
    HTTPS certificate is issued automatically after DNS resolves.
 6. **Deploy**, open the site, sign in, and check that your test message from earlier appears.
 
+## Netlify settings (if you connect the repo through the dashboard)
+
+All of this is already in `netlify.toml`, so Netlify fills it in by itself. For reference:
+
+| Setting | Value |
+|---|---|
+| Base directory | *(empty)* |
+| Build command | *(empty)* |
+| Publish directory | `public` (main page: `public/index.html`) |
+| Functions directory | `netlify/functions` |
+| Node version | 20 (`.nvmrc` and `netlify.toml`) |
+
+Files added for hosting: `netlify.toml` (publish dir, functions, `/api/*` routing, security headers),
+`public/404.html` (branded not-found page), `public/favicon.svg`, `package.json`, `.nvmrc`.
+
 ## Everyday use
 
 - Tabs: **Overview**, **Messages**, **Appointments** (badges show unread counts).

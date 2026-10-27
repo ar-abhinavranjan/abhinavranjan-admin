@@ -1,18 +1,43 @@
-# netlify.toml — admin.abhinavranjan.qzz.io
-# Only /public is served. Functions and tools live OUTSIDE the published folder.
+# netlify.toml — AR. Admin (admin.abhinavranjan.qzz.io)
+#
+# Netlify dashboard values (these are read from this file automatically):
+#   Base directory .......... (leave empty)
+#   Build command ........... (leave empty, there is nothing to build)
+#   Publish directory ....... public            <- main opening file: public/index.html
+#   Functions directory ..... netlify/functions
+#
+# Only /public is served. Functions and tools sit OUTSIDE it and are never downloadable.
 
 [build]
   publish   = "public"
   functions = "netlify/functions"
+  command   = ""
 
 [build.environment]
   NODE_VERSION = "20"
 
+[functions]
+  directory = "netlify/functions"
+
+# Local testing with `netlify dev` (optional)
+[dev]
+  publish = "public"
+  port    = 8888
+
+# ---- API: /api/admin-login -> /.netlify/functions/admin-login
 [[redirects]]
   from   = "/api/*"
   to     = "/.netlify/functions/:splat"
   status = 200
   force  = true
+
+# ---- Browsers ask for /favicon.ico
+[[redirects]]
+  from   = "/favicon.ico"
+  to     = "/favicon.svg"
+  status = 200
+
+# ---- Anything else that is not a file -> branded 404 page (Netlify serves public/404.html)
 
 [[headers]]
   for = "/*"
@@ -26,3 +51,13 @@
     Cross-Origin-Opener-Policy = "same-origin"
     X-Robots-Tag = "noindex, nofollow, noarchive"
     Cache-Control = "no-store"
+
+# Static assets may be cached briefly (config.json stays fresh so edits show up quickly)
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
