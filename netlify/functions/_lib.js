@@ -85,17 +85,18 @@ function clearCookie() {
 
 /* ---------- passwords ---------- */
 
-// Stored format: scrypt$N$saltHex$hashHex  (r=8, p=1, keylen=64)
+// Stored format: scrypt:N:saltHex:hashHex  (r=8, p=1, keylen=64). Colons keep it safe to paste into .env files.
+// The older scrypt$N$salt$hash form (with dollar signs) is still accepted when verifying.
 async function hashPassword(password, saltHex, N) {
   const salt = saltHex ? Buffer.from(saltHex, 'hex') : crypto.randomBytes(16);
   const cost = N || 16384;
   const dk = await scrypt(password, salt, 64, { N: cost, r: 8, p: 1, maxmem: 64 * 1024 * 1024 });
-  return `scrypt$${cost}$${salt.toString('hex')}$${dk.toString('hex')}`;
+  return `scrypt:${cost}:${salt.toString('hex')}:${dk.toString('hex')}`;
 }
 
 async function verifyPassword(password, stored) {
   if (typeof stored !== 'string') return false;
-  const parts = stored.split('$');
+  const parts = stored.split(/[:$]/);
   if (parts.length !== 4 || parts[0] !== 'scrypt') return false;
   const N = parseInt(parts[1], 10);
   if (!Number.isInteger(N) || N < 1024 || N > 1 << 20) return false;

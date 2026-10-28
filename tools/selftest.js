@@ -47,7 +47,8 @@ const ev = (method, body, headers) => ({ httpMethod: method, headers: Object.ass
 (async () => {
   const pass = 'correct horse battery';
   process.env.ADMIN_PASS_HASH = await L.hashPassword(pass);
-  assert(/^scrypt\$16384\$[0-9a-f]{32}\$[0-9a-f]{128}$/.test(process.env.ADMIN_PASS_HASH));
+  assert(/^scrypt:16384:[0-9a-f]{32}:[0-9a-f]{128}$/.test(process.env.ADMIN_PASS_HASH));
+  assert(await L.verifyPassword(pass, process.env.ADMIN_PASS_HASH.replace(/:/g, '$'))); // legacy format still works
   assert(await L.verifyPassword(pass, process.env.ADMIN_PASS_HASH));
   assert(!(await L.verifyPassword('wrong', process.env.ADMIN_PASS_HASH)));
   console.log('ok  password hashing');
@@ -101,7 +102,7 @@ assert(eq > 0);
   assert.strictEqual(a.preferredDate, '2099-12-01T15:30');
   assert.strictEqual(a.reason, 'Ethical hacking mentorship');
   assert.strictEqual(a.notes, "I'm a beginner & keen.");
-  assert(!r.body.includes('scrypt$') && !r.body.includes(process.env.ADMIN_SESSION_SECRET));
+  assert(!r.body.includes('scrypt') && !r.body.includes(process.env.ADMIN_SESSION_SECRET));
   console.log('ok  messages vs appointments split, fields parsed, no secrets in response');
 
   // writes
