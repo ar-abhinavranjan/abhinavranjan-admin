@@ -71,6 +71,31 @@ All of this is already in `netlify.toml`, so Netlify fills it in by itself. For 
 Files added for hosting: `netlify.toml` (publish dir, functions, `/api/*` routing, security headers),
 `public/404.html` (branded not-found page), `public/favicon.svg`, `package.json`, `.nvmrc`.
 
+## Content tab (edit the main site from here)
+
+The **Content** tab edits the main site's JSON data files (achievements/winnings, social media, projects,
+biography, popup, contact settings, FAQ, Q&A, site config) with a form. **Save & publish** commits the change
+to the main site repo, and Netlify redeploys it in about a minute.
+
+Setup: add these environment variables to this admin site, then redeploy.
+
+| Key | Value |
+|---|---|
+| `SITE_GITHUB_TOKEN` | fine-grained token for **only** the main site repo, Contents: Read and write (mark secret) |
+| `SITE_GITHUB_REPO` | the main site repo name |
+| `SITE_GITHUB_OWNER` | `ar-abhinavranjan` (optional, defaults to `GITHUB_REPO_OWNER`) |
+| `SITE_GITHUB_BRANCH` | `main` (optional) |
+
+Safety rules (enforced on the server, not just in the page):
+- Only files listed in `netlify/functions/content-files.json` can be read or written. Add a line there to allow another JSON file.
+  `lts_podcasts.json` (private podcast passwords) is deliberately **not** listed.
+- No HTML tags, no `javascript:` or `data:` links, size and depth limits, and the top-level structure cannot change.
+- Saves are compare-and-swap on the file version, so an old browser tab cannot overwrite newer edits.
+- Every save is a normal Git commit. **History** lists recent versions and **Restore** republishes an old one.
+- The form editor is generic: it builds fields from whatever is in the file, with Add / Delete / Move / Duplicate for lists.
+  **Raw JSON** mode is there for anything unusual.
+- First save of a file may reformat whitespace (indentation, blank lines). Content is unchanged.
+
 ## Everyday use
 
 - Tabs: **Overview**, **Messages**, **Appointments** (badges show unread counts).
@@ -82,7 +107,7 @@ Files added for hosting: `netlify.toml` (publish dir, functions, `/api/*` routin
 
 - **Sign everyone out / revoke sessions:** change `ADMIN_SESSION_SECRET` and redeploy.
 - **Change password:** run `make-hash.js` again, update `ADMIN_PASS_HASH`, redeploy.
-- **Self-test:** `node tools/selftest.js` (offline, mocks GitHub).
+- **Self-test:** `npm test` (offline, mocks GitHub).
 
 ## Known limits (honest list)
 

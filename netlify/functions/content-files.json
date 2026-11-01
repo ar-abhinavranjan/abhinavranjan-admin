@@ -1,0 +1,11 @@
+[
+  { "path": "frontend/data/winnings_page.json",        "label": "Winnings & achievements" },
+  { "path": "frontend/data/socials_page.json",         "label": "Social media" },
+  { "path": "frontend/data/projects_page.json",        "label": "Projects" },
+  { "path": "frontend/data/biography_page.json",       "label": "Biography: books & podcast" },
+  { "path": "frontend/data/popup_index.json",          "label": "Homepage popup" },
+  { "path": "frontend/data/contact_page.json",         "label": "Contact page settings" },
+  { "path": "frontend/data/faq_contact.json",          "label": "Contact FAQ" },
+  { "path": "frontend/data/asked_questions_page.json", "label": "Questions & answers" },
+  { "path": "frontend/data/config.json",               "label": "Site config (profile, SEO, contact)", "warn": "Site-wide settings. A mistake here can affect every page. Use History to roll back." }
+]

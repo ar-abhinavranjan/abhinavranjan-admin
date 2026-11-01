@@ -5,7 +5,7 @@
   "description": "AR. Admin panel: messages and appointments for abhinavranjan.qzz.io",
   "engines": { "node": ">=18" },
   "scripts": {
-    "test": "node tools/selftest.js",
+    "test": "node tools/selftest.js && node tools/selftest-content.js",
     "make-hash": "node tools/make-hash.js"
   }
 }

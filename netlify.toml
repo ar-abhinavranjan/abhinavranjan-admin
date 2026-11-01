@@ -15,6 +15,10 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  # Netlify's secrets scanner would otherwise fail the build on ordinary words such as the
+  # username or repo names that also appear in the README/code. These are NOT secrets.
+  # (If you also set SECRETS_SCAN_OMIT_KEYS in the Netlify UI, the UI value wins: keep it in sync.)
+  SECRETS_SCAN_OMIT_KEYS = "ADMIN_USER,GITHUB_BRANCH,GITHUB_REPO_OWNER,GITHUB_SUBMISSIONS_REPO,STATE_PATH,SUBMISSIONS_PATH,SITE_GITHUB_OWNER,SITE_GITHUB_REPO,SITE_GITHUB_BRANCH"
 
 [functions]
   directory = "netlify/functions"

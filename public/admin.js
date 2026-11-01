@@ -156,10 +156,13 @@
       b.classList.toggle('active', b.getAttribute('data-tab') === S.tab);
     });
     if (S.tab === 'overview') {
-      $('viewOverview').hidden = false; $('viewList').hidden = true;
+      $('viewOverview').hidden = false; $('viewList').hidden = true; $('viewContent').hidden = true;
       renderOverview();
+    } else if (S.tab === 'content') {
+      $('viewOverview').hidden = true; $('viewList').hidden = true; $('viewContent').hidden = false;
+      if (window.ARContent) window.ARContent.show();
     } else {
-      $('viewOverview').hidden = true; $('viewList').hidden = false;
+      $('viewOverview').hidden = true; $('viewContent').hidden = true; $('viewList').hidden = false;
       renderList();
       var focusedNote = document.activeElement && document.activeElement.id === 'noteField';
       if (!(quiet && focusedNote)) renderDetail();
@@ -460,6 +463,7 @@
 
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
       b.addEventListener('click', function () {
+        if (S.tab === 'content' && b.getAttribute('data-tab') !== 'content' && window.ARContent && !window.ARContent.leaveOk()) return;
         S.tab = b.getAttribute('data-tab');
         S.filter = 'all'; S.query = ''; $('search').value = '';
         S.selectedId = null;
@@ -474,12 +478,17 @@
     $('refreshBtn').addEventListener('click', function () { load(); });
     $('backBtn').addEventListener('click', function () { $('detail').classList.remove('open'); });
     $('logoutBtn').addEventListener('click', function () {
+      if (window.ARContent && window.ARContent.isDirty() && !window.confirm('You have unsaved content changes. Sign out anyway?')) return;
       api('/api/admin-logout', 'POST', {}).then(function () { showLogin(''); }).catch(function () { showLogin(''); });
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') $('detail').classList.remove('open');
     });
   }
+
+  /* ---------- hooks for content.js ---------- */
+  window.ARToast = function (msg, bad) { toast(msg, { bad: !!bad }); };
+  window.ARSessionExpired = function () { showLogin('Session expired. Please sign in again.'); };
 
   /* ---------- boot ---------- */
   function boot() {
