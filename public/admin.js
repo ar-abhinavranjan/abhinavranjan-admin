@@ -343,7 +343,6 @@
       kv(dl, 'Reason', item.reason);
     }
     kv(dl, 'Received', fmtDate(item.timestamp));
-    kv(dl, 'IP address', item.ip);
     body.appendChild(dl);
 
     body.appendChild(el('h3', { className: 'section-title', text: isAppt ? 'Notes from the visitor' : 'Message' }));

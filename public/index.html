@@ -46,30 +46,32 @@
         </span>
       </div>
 
-      <nav class="tabs" aria-label="Sections">
-        <button class="tab active" data-tab="overview" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
-          <span>Overview</span>
-        </button>
-        <button class="tab" data-tab="messages" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 7 9-7"/></svg>
-          <span>Messages</span><b id="badgeMessages" class="badge" hidden>0</b>
-        </button>
-        <button class="tab" data-tab="appointments" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-          <span>Appointments</span><b id="badgeAppointments" class="badge" hidden>0</b>
-        </button>
-        <button class="tab" data-tab="content" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16z"/><path d="M13 7l4 4"/></svg>
-          <span>Content</span>
-        </button>
-      </nav>
 
       <div class="actions">
         <button id="refreshBtn" class="btn ghost small" type="button" title="Refresh">Refresh</button>
         <button id="logoutBtn" class="btn ghost small" type="button">Sign out</button>
       </div>
     </header>
+
+
+    <nav class="tabs" aria-label="Sections">
+      <button class="tab active" data-tab="overview" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+        <span>Overview</span>
+      </button>
+      <button class="tab" data-tab="messages" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 7 9-7"/></svg>
+        <span>Messages</span><b id="badgeMessages" class="badge" hidden>0</b>
+      </button>
+      <button class="tab" data-tab="appointments" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <span>Appointments</span><b id="badgeAppointments" class="badge" hidden>0</b>
+      </button>
+      <button class="tab" data-tab="content" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16z"/><path d="M13 7l4 4"/></svg>
+        <span>Content</span>
+      </button>
+    </nav>
 
     <section id="viewOverview" class="view"></section>
 

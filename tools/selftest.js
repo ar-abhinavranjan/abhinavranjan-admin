@@ -58,6 +58,12 @@ const ev = (method, body, headers) => ({ httpMethod: method, headers: Object.ass
   assert.strictEqual((await data(ev('GET', null, { cookie: L.COOKIE_NAME + '=abc.def' }))).statusCode, 401);
   console.log('ok  data endpoint rejects missing/forged cookie');
 
+  // write guards reject missing Origin as well as cross-origin requests
+  assert.strictEqual(L.checkWriteRequest({ headers: { 'x-admin-request': '1', host: 'admin.test' } }), 'Missing origin');
+  assert.strictEqual(L.checkWriteRequest({ headers: { 'x-admin-request': '1', origin: 'https://evil.test', host: 'admin.test' } }), 'Cross-origin request blocked');
+  assert.strictEqual(L.checkWriteRequest({ headers: { 'x-admin-request': '1', origin: 'https://admin.test', host: 'admin.test' } }), null);
+  console.log('ok  write guard requires a matching secure Origin');
+
   // login guards
   assert.strictEqual((await login(ev('POST', { username: 'admin', password: pass }, { 'x-admin-request': undefined }))).statusCode, 403);
   assert.strictEqual((await login(ev('POST', { username: 'admin', password: pass }, { origin: 'https://evil.test' }))).statusCode, 403);
@@ -96,7 +102,8 @@ assert(eq > 0);
   let j = JSON.parse(r.body);
   assert.strictEqual(j.messages.length, 1);
   assert.strictEqual(j.appointments.length, 1);
-  assert.strictEqual(j.messages[0].message, 'Hello <b>there</b>, nice site'); // decoded, rendered via textContent in UI
+  assert.strictEqual(j.messages[0].message, 'Hello <b>there</b>, nice site');
+  assert.strictEqual(Object.prototype.hasOwnProperty.call(j.messages[0], 'ip'), false, 'raw source IP is not exposed in admin response'); // decoded, rendered via textContent in UI
   const a = j.appointments[0];
   assert.strictEqual(a.phone, '+91 98765 43210');
   assert.strictEqual(a.preferredDate, '2099-12-01T15:30');
