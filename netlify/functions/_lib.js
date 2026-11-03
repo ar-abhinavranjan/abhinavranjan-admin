@@ -117,7 +117,8 @@ function safeEqualStr(a, b) {
 
 /* ---------- login throttling (best effort: per warm instance) ---------- */
 
-const attempts = new Map(); // ip -> { count, resetAt }
+const attempts = new Map(); // best-effort per warm instance; use an edge/shared store for durable limits
+const MAX_TRACKED_IPS = 5000;
 const MAX_FAILS = 5;
 const WINDOW_MS = 15 * 60 * 1000;
 
@@ -135,6 +136,9 @@ function isLockedOut(ip) {
 
 function recordFail(ip) {
   const now = Date.now();
+  // Prune expired entries and cap memory use under distributed/random-IP traffic.
+  for (const [key, value] of attempts) if (now > value.resetAt) attempts.delete(key);
+  if (!attempts.has(ip) && attempts.size >= MAX_TRACKED_IPS) attempts.delete(attempts.keys().next().value);
   const e = attempts.get(ip);
   if (!e || now > e.resetAt) attempts.set(ip, { count: 1, resetAt: now + WINDOW_MS });
   else e.count += 1;
@@ -150,13 +154,13 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function checkWriteRequest(event) {
   const h = event.headers || {};
   if (h['x-admin-request'] !== '1') return 'Missing request header';
-  const origin = h.origin;
-  if (origin) {
-    let host;
-    try { host = new URL(origin).host; } catch (e) { return 'Bad origin'; }
-    const own = h['x-forwarded-host'] || h.host;
-    if (own && host !== own) return 'Cross-origin request blocked';
-  }
+  // Origin is mandatory: accepting a missing value weakens the documented same-origin guard.
+  if (typeof h.origin !== 'string' || !h.origin) return 'Missing origin';
+  let origin;
+  try { origin = new URL(h.origin); } catch (e) { return 'Bad origin'; }
+  const ownHost = h['x-forwarded-host'] || h.host;
+  if (!ownHost || origin.host.toLowerCase() !== String(ownHost).toLowerCase()) return 'Cross-origin request blocked';
+  if (origin.protocol !== 'https:' && !/^(localhost|127\\.0\\.0\\.1)(:\\d+)?$/i.test(origin.host)) return 'Insecure origin blocked';
   return null;
 }
 
@@ -202,9 +206,10 @@ async function readSubmissions() {
   if (!res.ok) throw new Error(`GitHub read failed: ${res.status}`);
   try {
     const data = JSON.parse(await res.text());
-    return Array.isArray(data) ? data : [];
+    if (!Array.isArray(data)) throw new Error('Submissions storage has an invalid structure');
+    return data;
   } catch (e) {
-    return [];
+    throw new Error('Submissions storage contains invalid JSON');
   }
 }
 
@@ -216,9 +221,9 @@ async function readState() {
   if (res.status === 404) return { state: {}, sha: null };
   if (!res.ok) throw new Error(`GitHub state read failed: ${res.status}`);
   const file = await res.json();
-  let state = {};
-  try { state = JSON.parse(Buffer.from(file.content || '', 'base64').toString('utf8')) || {}; } catch (e) { state = {}; }
-  if (typeof state !== 'object' || Array.isArray(state)) state = {};
+  let state;
+  try { state = JSON.parse(Buffer.from(file.content || '', 'base64').toString('utf8')); } catch (e) { throw new Error('Admin state storage contains invalid JSON'); }
+  if (!state || typeof state !== 'object' || Array.isArray(state)) throw new Error('Admin state storage has an invalid structure');
   return { state, sha: file.sha };
 }
 
@@ -279,7 +284,6 @@ function shapeItem(sub, st) {
     email: decodeEntities(sub.email),
     phone: decodeEntities(sub.contactNo || ''),
     message,
-    ip: sub.source_ip || '',
     kind: isAppointment ? 'appointment' : 'message',
     status: ['new', 'read', 'done'].includes(st && st.status) ? st.status : 'new',
     note: (st && st.note) || ''
