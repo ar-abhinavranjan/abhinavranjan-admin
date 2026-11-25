@@ -2,6 +2,11 @@
 const L = require('./_lib');
 
 exports.handler = async (event) => {
+  // Require the edge-limited route; direct calls to the default function URL are rejected.
+  if (event.path && event.path !== '/api/admin-login') {
+    return L.json(404, { ok: false, error: 'Not found' });
+  }
+
   if (event.httpMethod !== 'POST') return L.json(405, { ok: false, error: 'Method not allowed' });
 
   const guard = L.checkWriteRequest(event);

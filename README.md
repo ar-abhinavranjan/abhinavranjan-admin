@@ -25,7 +25,7 @@ you -> admin.abhinavranjan.qzz.io -> /api/admin-data (checks signed session cook
 - Login issues an **HMAC-signed session cookie**: `__Host-` prefix, `HttpOnly`, `Secure`, `SameSite=Strict`, 8 h expiry.
 - **Every data call re-checks the cookie on the server.** Hiding the UI is not the protection.
 - Writes also need a custom header and a same-origin `Origin` (CSRF defence).
-- Login: generic error, 700 ms delay on failure, lockout after 5 failures per 15 min (best effort, see limits).
+- The sign-in page remains publicly reachable by design; the login API verifies credentials server-side, issues a signed session cookie, and is edge-limited to five requests per IP per 180 seconds.
 - Strict CSP (no inline scripts or styles), `noindex` everywhere, only `/public` is published.
 - All visitor text is shown with `textContent`, so hostile HTML in a message stays inert.
 

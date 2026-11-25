@@ -29,6 +29,17 @@
   port    = 8888
 
 # ---- API: /api/admin-login -> /.netlify/functions/admin-login
+# Login is public by design; throttle it at the edge before the function executes.
+[[redirects]]
+  from   = "/api/admin-login"
+  to     = "/.netlify/functions/admin-login"
+  status = 200
+  force  = true
+  [redirects.rate_limit]
+    window_limit = 5
+    window_size  = 180
+    aggregate_by = ["ip", "domain"]
+
 [[redirects]]
   from   = "/api/*"
   to     = "/.netlify/functions/:splat"
